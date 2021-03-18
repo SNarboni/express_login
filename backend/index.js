@@ -51,6 +51,8 @@ app.get("/", (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
+  console.log("nouvelle requet POST : login");
+
   const user = await userModel
     .findOne({
       email: req.body.email,
@@ -72,7 +74,6 @@ app.post("/login", async (req, res) => {
         message: "utilisateur reconnu",
         token: token,
       });
-      console.log("nouvelle requet POST : login");
     } else {
       res.json({
         message: "mot de passe érroné",
@@ -131,17 +132,18 @@ app.post("/signUp", upload.single("profilePicture"), async (req, res) => {
   }
 });
 
-app.get("/welcome", verifyToken, async (req, res) => {
+app.get("/welcome", async (req, res) => {
+  console.log("nouvelle requet GET : welcome");
   let users = await userModel
     .find()
-    .select(["email", "firstName"])
-    .exec()
-    .lean();
+    .select(["email", "firstName", "profilePicture"])
+    .exec();
   res.json(users);
 });
 
 app.get("/admin", verifyToken, async (req, res) => {
-  console.log(req.user);
+  console.log("nouvelle requet GET : Admin");
+
   res.json({
     message: `Welcome, ${req.user.firstName} dans votre espace`,
     email: req.user.email,
