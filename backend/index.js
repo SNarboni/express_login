@@ -1,11 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors")
+const cors = require("cors");
 const bodyParser = require("body-parser");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const config = require("./config");
+const upload = multer({ dest: "public/userPP" });
 
 const userModel = require("./models/user");
 
@@ -19,11 +23,11 @@ mongoose.connect(config.mongoDB, () => {
   console.log("DB connectée");
 });
 
+app.use(express.static("public"));
 app.use(bodyParser.json());
 app.use(cors());
 
 const verifyToken = async (req, res, next) => {
-  console.log("test")
   try {
     const token = req.headers.authorization;
     const result = jwt.verify(token.split(" ")[1], config.secret);
@@ -52,33 +56,36 @@ app.post("/login", async (req, res) => {
     })
     .exec();
 
-    if(user){
-      if (bcryptjs.compareSync(req.body.password, user.password)) {
-        const token = jwt.sign(
-          {
-            id: user._id,
-          },
-          config.secret,
-          {
-            expiresIn: 7200,
-          }
-        );
-        res.json({
-          message: "utilisateur reconnu",
-          token: token,
-        })
-        console.log("nouvelle requet POST : login")
-      } else {
-        res.send("mot de passe érroné");
-      }
-    }else{
-      res.send("email inconue")
+  if (user) {
+    if (bcryptjs.compareSync(req.body.password, user.password)) {
+      const token = jwt.sign(
+        {
+          id: user._id,
+        },
+        config.secret,
+        {
+          expiresIn: 7200,
+        }
+      );
+      res.json({
+        message: "utilisateur reconnu",
+        token: token,
+      });
+      console.log("nouvelle requet POST : login");
+    } else {
+      res.json({
+        message: "mot de passe érroné",
+      });
     }
-
-  
+  } else {
+    res.json({
+      message: "email inconue",
+    });
+  }
 });
 
-app.post("/signUp", async (req, res) => {
+app.post("/signUp", upload.single("profilePicture"), async (req, res) => {
+  console.log(req.file);
   try {
     const user = await userModel
       .findOne({
@@ -97,9 +104,7 @@ app.post("/signUp", async (req, res) => {
     }
 
     if (req.body.password !== req.body.secondPassword) {
-      res.send(
-        "les mots de passes doivent etre identiques"
-      );
+      res.send("les mots de passes doivent etre identiques");
       return;
     }
 
@@ -109,6 +114,7 @@ app.post("/signUp", async (req, res) => {
       firstName: req.body.firstName,
       surname: req.body.surname,
       birth: req.body.birth,
+      profilePicture: req.file.originalname,
     });
     res.send(`Bienvenue parmis nous ${req.body.firstName}`);
   } catch (err) {
@@ -118,5 +124,20 @@ app.post("/signUp", async (req, res) => {
 });
 
 app.get("/welcome", verifyToken, async (req, res) => {
-  res.send(`Welcome, ${req.user.firstName}`);
+  let users = await userModel
+    .find()
+    .select(["email", "firstName"])
+    .exec()
+    .lean();
+  res.json(users);
+});
+
+app.get("/admin", verifyToken, async (req, res) => {
+  res.json({
+    message: `Welcome, ${req.user.firstName} dans votre espace`,
+    email: req.user.email,
+    firstName: req.user.firstName,
+    surname: req.user.surname,
+    profilePicture: req.user.profilePicture,
+  });
 });
