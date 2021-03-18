@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const multer = require("multer");
+const moment = require("moment");
 const fs = require("fs");
 const path = require("path");
 const bcryptjs = require("bcryptjs");
@@ -85,7 +86,6 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/signUp", upload.single("profilePicture"), async (req, res) => {
-  console.log(req.file);
   try {
     const user = await userModel
       .findOne({
@@ -107,14 +107,22 @@ app.post("/signUp", upload.single("profilePicture"), async (req, res) => {
       res.send("les mots de passes doivent etre identiques");
       return;
     }
+    if (req.file) {
+      let myPP = fs.renameSync(
+        req.file.path,
+        path.join(req.file.destination, `${req.body.firstName}.png`)
+      );
+    }
+
+    let monAge = parseInt(moment(req.body.age, "YYYYMMDD").fromNow()) - 1;
 
     await userModel.create({
       email: req.body.email,
       password: bcryptjs.hashSync(req.body.password),
       firstName: req.body.firstName,
       surname: req.body.surname,
-      birth: req.body.birth,
-      profilePicture: req.file.originalname,
+      age: monAge,
+      profilePicture: `userPP/${req.body.firstName}.png`,
     });
     res.send(`Bienvenue parmis nous ${req.body.firstName}`);
   } catch (err) {
@@ -133,11 +141,13 @@ app.get("/welcome", verifyToken, async (req, res) => {
 });
 
 app.get("/admin", verifyToken, async (req, res) => {
+  console.log(req.user);
   res.json({
     message: `Welcome, ${req.user.firstName} dans votre espace`,
     email: req.user.email,
     firstName: req.user.firstName,
     surname: req.user.surname,
+    age: req.user.age,
     profilePicture: req.user.profilePicture,
   });
 });

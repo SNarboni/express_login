@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, min: 8 },
   firstName: String,
   surname: String,
-  birth: Date,
+  age: String,
   profilePicture: String,
 });
 

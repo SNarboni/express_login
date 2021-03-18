@@ -6,7 +6,7 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
-  const [birthday, setBirthday] = useState("");
+  const [age, setAge] = useState("");
   const [password, setPassword] = useState("");
   const [secondPassword, setSecondPassword] = useState("");
   const [profilePicture, setProfilePicture] = useState("");
@@ -21,7 +21,7 @@ const SignUp = () => {
     formData.append("email", email);
     formData.append("firstName", firstName);
     formData.append("surname", surname);
-    formData.append("birthday", birthday);
+    formData.append("age", age);
     formData.append("secondPassword", secondPassword);
     formData.append("password", password);
     formData.append("profilePicture", profilePicture);
@@ -33,7 +33,7 @@ const SignUp = () => {
       //   email: email,
       //   firstName: firstName,
       //   surname: surname,
-      //   birthday: birthday,
+      //   age: age,
       //   secondPassword: secondPassword,
       //   password: password,
       //   profilePicture: profilePicture,
@@ -67,7 +67,7 @@ const SignUp = () => {
       setIsValid(false)
       console.log(isValid)
     }
-  }, [email, firstName, surname, birthday, password, secondPassword, error, profilePicture])
+  }, [email, firstName, surname, age, password, secondPassword, error, profilePicture])
 
 
   return (
@@ -84,7 +84,7 @@ const SignUp = () => {
           required
         />
         <input value={surname} onChange={(event) => setSurname(event.target.value)} type="text" placeholder="Surname" required />
-        <input value={birthday} onChange={(event) => setBirthday(event.target.value)} type="date" required />
+        <input value={age} onChange={(event) => setAge(event.target.value)} type="date" required />
         <input value={password} onChange={(event) => setPassword(event.target.value)} type="password" placeholder="Password" required />
         <input value={secondPassword} onChange={(event) => setSecondPassword(event.target.value)}
           type="password"

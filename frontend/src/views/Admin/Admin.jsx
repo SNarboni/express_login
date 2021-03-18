@@ -47,7 +47,8 @@ const Admin = () => {
             <h4>{servResponse.email}</h4>
             <h4>{servResponse.firstName}</h4>
             <h4>{servResponse.surname}</h4>
-            <img src={`http://localhost:3000/userPP/${servResponse.profilePicture}`} />
+            <h4>{servResponse.age} ans</h4>
+            <img src={`http://localhost:8000/${servResponse.profilePicture}`} />
         </div>
     )
 }
