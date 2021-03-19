@@ -8,7 +8,7 @@ const Admin = ({ match }) => {
     const [newFirstName, setNewFirstName] = useState("");
     const [newSurname, setNewSurname] = useState("");
     const [ifEmailFalse, setIfEmailFalse] = useState("");
-    // const [newAge, setNewAge] = useState("");
+    const [newAge, setNewAge] = useState("");
     // const [newPassword, setNewPassword] = useState("");
     // const [newProfilePicture, setNewProfilePicture] = useState("");
 
@@ -53,6 +53,7 @@ const Admin = ({ match }) => {
         let verifEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(newEmail ? newEmail : servResponse.email);
         if (verifEmail) {
             setCanEdit(!canEdit)
+            console.log(servResponse.age)
             fetch("http://localhost:8000/admin", {
                 method: "PUT",
                 headers: {
@@ -62,6 +63,7 @@ const Admin = ({ match }) => {
                     email: newEmail ? newEmail : servResponse.email,
                     firstName: newFirstName ? newFirstName : servResponse.firstName,
                     surname: newSurname ? newSurname : servResponse.surname,
+                    age: newAge ? newAge : `${servResponse.age}`
                 }),
             })
                 .then((response) => {
@@ -104,6 +106,7 @@ const Admin = ({ match }) => {
                         <h1>{servResponse.surname}</h1>
                         <input type="email" onChange={(e) => setNewSurname(e.target.value)} />
                         <h1>{servResponse.age} ans</h1>
+                        <input type="date" onChange={(e) => setNewAge(e.target.value)} />
                         <img src={`http://localhost:8000/${servResponse.profilePicture}`} />
                     </>
                 ) : (

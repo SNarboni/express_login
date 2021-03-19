@@ -115,14 +115,12 @@ app.post("/signUp", upload.single("profilePicture"), async (req, res) => {
       );
     }
 
-    let monAge = parseInt(moment(req.body.age, "YYYYMMDD").fromNow()) - 1;
-
     await userModel.create({
       email: req.body.email,
       password: bcryptjs.hashSync(req.body.password),
       firstName: req.body.firstName,
       surname: req.body.surname,
-      age: monAge,
+      age: req.body.age,
       profilePicture: `userPP/${req.body.firstName}.png`,
     });
     res.send(`Bienvenue parmis nous ${req.body.firstName}`);
@@ -143,6 +141,7 @@ app.get("/welcome", async (req, res) => {
 
 app.get("/admin", verifyToken, async (req, res) => {
   console.log("nouvelle requet GET : Admin");
+  let monAge = parseInt(moment(req.user.age, "YYYYMMDD").fromNow()) - 1;
 
   res.json({
     message: `Welcome, ${req.user.firstName} dans votre espace`,
@@ -150,7 +149,7 @@ app.get("/admin", verifyToken, async (req, res) => {
     email: req.user.email,
     firstName: req.user.firstName,
     surname: req.user.surname,
-    age: req.user.age,
+    age: monAge,
     profilePicture: req.user.profilePicture,
   });
 });
@@ -158,14 +157,19 @@ app.get("/admin", verifyToken, async (req, res) => {
 app.post("/userPage", async (req, res) => {
   console.log("nouvelle requet GET : userPage");
   let userInfos = await userModel.findById(req.body.id).exec();
+  userInfos.age = parseInt(moment(userInfos.age, "YYYYMMDD").fromNow()) - 1;
   res.json(userInfos);
 });
 
 app.put("/admin", async (req, res) => {
-  console.log(req.body);
   console.log("nouvelle requet PUT : Admin");
 
+  console.log(req.body.age);
+  console.log(parseInt(req.body.age));
   try {
+    if (parseInt(req.body.age) < 125) {
+      req.body.age = parseInt(req.body.age);
+    }
     await userModel.updateOne(
       {
         _id: req.body._id,
