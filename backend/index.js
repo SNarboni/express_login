@@ -146,10 +146,34 @@ app.get("/admin", verifyToken, async (req, res) => {
 
   res.json({
     message: `Welcome, ${req.user.firstName} dans votre espace`,
+    _id: req.user._id,
     email: req.user.email,
     firstName: req.user.firstName,
     surname: req.user.surname,
     age: req.user.age,
     profilePicture: req.user.profilePicture,
   });
+});
+
+app.post("/userPage", async (req, res) => {
+  console.log("nouvelle requet GET : userPage");
+  let userInfos = await userModel.findById(req.body.id).exec();
+  res.json(userInfos);
+});
+
+app.put("/admin", async (req, res) => {
+  console.log(req.body);
+  console.log("nouvelle requet PUT : Admin");
+
+  try {
+    await userModel.updateOne(
+      {
+        _id: req.body._id,
+      },
+      req.body
+    );
+    res.send("modifié");
+  } catch (err) {
+    console.log(err);
+  }
 });
